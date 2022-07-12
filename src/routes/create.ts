@@ -18,9 +18,15 @@ export const get: RequestHandler = async ({ url }) => {
 			}
 		);
 		if (assetIdLookupResponse.status >= 300) {
+			const text = await assetIdLookupResponse.text();
+			console.error(
+				'Failed to lookup asset ID from playback ID',
+				assetIdLookupResponse.statusText,
+				text
+			);
 			return {
 				status: assetIdLookupResponse.status,
-				body: assetIdLookupResponse.statusText
+				body: `[${assetIdLookupResponse.statusText}]: ${text}`
 			};
 		}
 		const { data } = await assetIdLookupResponse.json();
@@ -40,8 +46,16 @@ export const get: RequestHandler = async ({ url }) => {
 		body: JSON.stringify(requestBody)
 	});
 
+	if (createTrackResponse.status >= 300) {
+		const text = await createTrackResponse.text();
+		console.error('Failed to create track', createTrackResponse.statusText, text);
+		return {
+			status: createTrackResponse.status,
+			body: `[${createTrackResponse.statusText}]: ${text}`
+		};
+	}
 	return {
 		status: createTrackResponse.status,
-		body: createTrackResponse.status >= 300 ? createTrackResponse.statusText : 'Success'
+		body: 'Success'
 	};
 };
